@@ -105,7 +105,6 @@ footer{text-align:center;padding:10px 20px 28px;color:var(--muted);font-size:.9r
 <footer>Media pembelajaran Informatika • Lab Topologi Jaringan</footer>
 <script>
 // ===== PENGATURAN GOOGLE SHEETS =====
-// Tempel URL Web App Google Apps Script di bawah ini:
 const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4FkBgsEse30axcHqwHkRZ0sUc9XMh1ZsT4Wv_6sV2cVI-9_KxP8LWBMJMzmji80Y_/exec";
 
 const stages = [
@@ -276,9 +275,9 @@ function showResults(){
 
 function sendScore(){
   const status=$("sheetStatus");
-  if(!SHEETS_WEB_APP_URL || SHEETS_WEB_APP_URL.includes("https://script.google.com/macros/s/AKfycbx4FkBgsEse30axcHqwHkRZ0sUc9XMh1ZsT4Wv_6sV2cVI-9_KxP8LWBMJMzmji80Y_/exec")){
+  if(!SHEETS_WEB_APP_URL){
     status.className="feedback";
-    status.textContent="Skor tercatat di layar (URL Web App Google Sheets belum dipasang pada kode).";
+    status.textContent="URL Web App Google Sheets belum diisi.";
     return;
   }
   status.className="feedback";
@@ -299,7 +298,7 @@ function sendScore(){
   }).then(()=>{
     status.className="feedback good";
     status.textContent="Skor berhasil dikirim dan terekam di Google Sheet!";
-    fetchLeaderboard(); // Muat ulang leaderboard setelah mengirim skor
+    setTimeout(fetchLeaderboard, 1500); // Tunggu sebentar lalu muat ulang leaderboard
   }).catch(()=>{
     status.className="feedback bad";
     status.textContent="Pengiriman gagal. Periksa koneksi internet.";
@@ -310,8 +309,8 @@ function fetchLeaderboard(){
   const container = $("leaderboardContainer");
   if(!container) return;
   
-  if(!SHEETS_WEB_APP_URL || SHEETS_WEB_APP_URL.includes("https://script.google.com/macros/s/AKfycbx4FkBgsEse30axcHqwHkRZ0sUc9XMh1ZsT4Wv_6sV2cVI-9_KxP8LWBMJMzmji80Y_/exec")){
-    container.innerHTML = `<p class="muted">Leaderboard aktif setelah URL Web App Google Sheets dipasang.</p>`;
+  if(!SHEETS_WEB_APP_URL){
+    container.innerHTML = `<p class="muted">URL Web App belum diatur.</p>`;
     return;
   }
   
@@ -330,7 +329,7 @@ function fetchLeaderboard(){
       container.innerHTML = html;
     })
     .catch(() => {
-      container.innerHTML = `<p class="muted" style="color:var(--red)">Gagal memuat leaderboard.</p>`;
+      container.innerHTML = `<p class="muted" style="color:var(--red)">Gagal memuat leaderboard (pastikan deploy Apps Script sudah diatur aksesnya ke 'Anyone').</p>`;
     });
 }
 
