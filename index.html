@@ -106,7 +106,7 @@ footer{text-align:center;padding:10px 20px 28px;color:var(--muted);font-size:.9r
 <script>
 // ===== PENGATURAN GOOGLE SHEETS =====
 // Tempel URL Web App Google Apps Script di bawah ini:
-const SHEETS_WEB_APP_URL = "MASUKKAN_URL_WEB_APP_ANDA_DISINI";
+const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4FkBgsEse30axcHqwHkRZ0sUc9XMh1ZsT4Wv_6sV2cVI-9_KxP8LWBMJMzmji80Y_/exec";
 
 const stages = [
  {
@@ -276,7 +276,7 @@ function showResults(){
 
 function sendScore(){
   const status=$("sheetStatus");
-  if(!SHEETS_WEB_APP_URL || SHEETS_WEB_APP_URL.includes("MASUKKAN_URL")){
+  if(!SHEETS_WEB_APP_URL || SHEETS_WEB_APP_URL.includes("https://script.google.com/macros/s/AKfycbx4FkBgsEse30axcHqwHkRZ0sUc9XMh1ZsT4Wv_6sV2cVI-9_KxP8LWBMJMzmji80Y_/exec")){
     status.className="feedback";
     status.textContent="Skor tercatat di layar (URL Web App Google Sheets belum dipasang pada kode).";
     return;
