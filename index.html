@@ -20,60 +20,94 @@ button:hover{filter:brightness(.95)}button:disabled{opacity:.45;cursor:not-allow
 .progress{height:9px;background:#e5edf5;border-radius:99px;overflow:hidden;margin:12px 0}.progress div{height:100%;background:linear-gradient(90deg,#1769aa,#35a2dc);width:0;transition:width .3s}
 .workspace{display:grid;grid-template-columns:230px minmax(0,1fr);gap:14px}
 .palette{background:#f6f9fd;border:1px solid var(--line);border-radius:12px;padding:12px}
-.device{border:1px solid #c8d6e5;background:white;border-radius:10px;padding:10px;margin:8px 0;display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
-.device:hover{border-color:var(--blue);background:#f0f7ff}.device.selected{outline:3px solid #8ac7ff;border-color:var(--blue);background:#eaf5ff}
+.device{border:1px solid #c8d6e5;background:white;border-radius:10px;padding:10px;margin:8px 0;display:flex;align-items:center;gap:9px;cursor:grab;user-select:none}
+.device:active{cursor:grabbing}.device:hover{border-color:var(--blue);background:#f0f7ff}
 .device .emoji{font-size:1.45rem}.device small{display:block;color:var(--muted);font-weight:500}
-.canvaswrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fbfdff}
-#board{width:100%;height:auto;display:block;min-height:340px;touch-action:manipulation}
-.node{cursor:pointer}.node rect{fill:#fff;stroke:#7190ae;stroke-width:2}.node.selected rect{stroke:#1769aa;stroke-width:4;fill:#eaf5ff}.node text{pointer-events:none;fill:#17314f;font-size:13px;font-weight:700;text-anchor:middle}.node .sub{font-size:10px;fill:#65758b;font-weight:500}
-.edge{stroke:#1769aa;stroke-width:3;stroke-linecap:round}.edge.good{stroke:#188653}.edge.bad{stroke:#c43d4b}.edge.ghost{stroke:#9cb0c4;stroke-dasharray:6 5;stroke-width:2}
+.canvaswrap{border:2px dashed var(--line);border-radius:12px;overflow:hidden;background:#fbfdff;position:relative}
+#board{width:100%;height:440px;display:block;touch-action:none}
+.node{cursor:move}.node rect{fill:#fff;stroke:#7190ae;stroke-width:2}.node.selected rect{stroke:#1769aa;stroke-width:4;fill:#eaf5ff}.node text{pointer-events:none;fill:#17314f;font-size:13px;font-weight:700;text-anchor:middle}
+.edge{stroke:#1769aa;stroke-width:3;stroke-linecap:round;cursor:pointer}.edge:hover{stroke:var(--red)}
+.backbone-line{stroke:#0f2c59;stroke-width:10;stroke-linecap:round;cursor:pointer}
+.backbone-tap{fill:#1769aa;stroke:#fff;stroke-width:2;cursor:pointer;transition:all 0.2s}
+.backbone-tap:hover{fill:#c43d4b;r:8}
+.backbone-tap.occupied{fill:#f4b942;stroke:#12345a;stroke-width:2}
+.backbone-tap.selected{fill:#c43d4b;stroke:#fff;stroke-width:3;r:9}
 .feedback{padding:12px;border-radius:10px;background:#f1f6fb;margin-top:12px;min-height:46px}.feedback.good{background:#e8f7ef;color:#12643d}.feedback.bad{background:#fff0f0;color:#9d2633}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.statrow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{padding:12px;background:#f5f8fc;border-radius:10px;text-align:center}.stat strong{display:block;font-size:1.35rem;color:var(--navy)}
-.instructions li{margin:7px 0}.targetdesc{line-height:1.5}
-table.leaderboard-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:0.95rem}
+.filter-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.filter-bar select{max-width:220px}
+table.leaderboard-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:0.95rem}
 table.leaderboard-table th, table.leaderboard-table td{border:1px solid var(--line);padding:8px 12px;text-align:left}
 table.leaderboard-table th{background:var(--sky);color:var(--navy)}
 footer{text-align:center;padding:10px 20px 28px;color:var(--muted);font-size:.9rem}
-@media(max-width:760px){main{padding:12px}.workspace{grid-template-columns:1fr}.palette .device{display:inline-flex;width:calc(50% - 8px);vertical-align:top}.formgrid{grid-template-columns:1fr}.statrow{grid-template-columns:repeat(3,1fr)}#board{min-height:280px}.panel{padding:14px}}
+@media(max-width:760px){main{padding:12px}.workspace{grid-template-columns:1fr}.palette .device{display:inline-flex;width:calc(50% - 8px);vertical-align:top}.formgrid{grid-template-columns:1fr}.statrow{grid-template-columns:repeat(3,1fr)}#board{height:320px}.panel{padding:14px}}
 </style>
 </head>
 <body>
-<header><h1>🧩 Lab Topologi Jaringan</h1><p>Media pembelajaran interaktif Informatika • Rancang, hubungkan, lalu periksa topologi jaringan.</p></header>
+<header><h1>🧩 Lab Topologi Jaringan</h1><p>Media pembelajaran interaktif Informatika • Drag perangkat ke kanvas, hubungkan, lalu periksa topologi.</p></header>
 <main>
 <section id="startPanel" class="panel">
 <h2>Selamat datang, calon perancang jaringan!</h2>
-<p class="muted">Masukkan identitas terlebih dahulu. Selesaikan 6 tantangan topologi dengan menghubungkan perangkat yang tersedia.</p>
+<p class="muted">Masukkan identitas terlebih dahulu. Selesaikan 6 tantangan topologi dengan melakukan drag perangkat ke kanvas dan menghubungkannya.</p>
 <div class="formgrid">
  <div class="field"><label for="studentName">Nama siswa</label><input id="studentName" maxlength="80" placeholder="Tulis nama lengkap" autocomplete="name"></div>
- <div class="field"><label for="studentClass">Kelas</label><input id="studentClass" maxlength="30" placeholder="Contoh: XI-1"></div>
+ <div class="field">
+   <label for="studentClass">Kelas</label>
+   <select id="studentClass">
+     <option value="" disabled selected>-- Pilih Kelas --</option>
+     <option value="XI-03">XI-03</option>
+     <option value="XI-04">XI-04</option>
+     <option value="XI-06">XI-06</option>
+     <option value="XI-07">XI-07</option>
+     <option value="XI-08">XI-08</option>
+   </select>
+ </div>
 </div>
 <div class="actions"><button id="startBtn">Mulai tantangan →</button></div>
 
 <hr style="border:0;border-top:1px solid var(--line);margin:20px 0">
-<h3>🏆 Leaderboard Sementara</h3>
+<div class="filter-bar">
+ <h3>🏆 Leaderboard Top 20</h3>
+ <div>
+   <label for="filterClass" style="font-weight:600;font-size:.9rem;margin-right:6px">Filter Kelas:</label>
+   <select id="filterClass">
+     <option value="ALL">-- Semua Kelas --</option>
+     <option value="XI-03">XI-03</option>
+     <option value="XI-04">XI-04</option>
+     <option value="XI-06">XI-06</option>
+     <option value="XI-07">XI-07</option>
+     <option value="XI-08">XI-08</option>
+   </select>
+ </div>
+</div>
 <div id="leaderboardContainer"><p class="muted">Memuat daftar peringkat...</p></div>
 </section>
 
 <section id="gamePanel" class="panel hidden">
-<div class="topbar"><div><span class="pill" id="stagePill">Tantangan 1 dari 6</span><h2 id="stageTitle" style="margin:10px 0 4px">Topologi Star</h2></div><span class="pill" id="scorePill">Skor: 0</span></div>
+<div class="topbar"><div><span class="pill" id="stagePill">Tantangan 1 dari 6</span><h2 id="stageTitle" style="margin:10px 0 4px">Topologi Bus</h2></div><span class="pill" id="scorePill">Skor: 0</span></div>
 <div class="progress"><div id="progressBar"></div></div>
 <p id="stageDescription" class="targetdesc"></p>
 <div class="workspace">
  <aside class="palette">
   <h3>Perangkat</h3>
-  <p class="muted" style="font-size:.88rem">Klik perangkat di papan untuk memilihnya. Klik perangkat kedua untuk membuat kabel.</p>
-  <div class="device" data-kind="pc"><span class="emoji">💻</span><span><b>Komputer</b><small>End device</small></span></div>
-  <div class="device" data-kind="switch"><span class="emoji">🔀</span><span><b>Switch</b><small>Menghubungkan LAN</small></span></div>
-  <div class="device" data-kind="router"><span class="emoji">📡</span><span><b>Router</b><small>Menghubungkan jaringan</small></span></div>
-  <div class="device" data-kind="modem"><span class="emoji">🌐</span><span><b>Modem</b><small>Akses ke ISP/internet</small></span></div>
-  <div class="device" data-kind="hub"><span class="emoji">🔌</span><span><b>Hub</b><small>Perangkat penghubung</small></span></div>
+  <p class="muted" style="font-size:.82rem">Drag perangkat ke kanvas. Klik salah satu titik Kabel Utama (1 titik = 1 PC), lalu klik PC untuk menghubungkannya.</p>
+  <div class="device" draggable="true" data-kind="pc" data-label="PC"><span class="emoji">💻</span><span><b>Komputer</b><small>End device</small></span></div>
+  <div class="device" draggable="true" data-kind="switch" data-label="Switch"><span class="emoji">🔀</span><span><b>Switch</b><small>Penghubung LAN</small></span></div>
+  <div class="device" draggable="true" data-kind="router" data-label="Router"><span class="emoji">📡</span><span><b>Router</b><small>Jaringan luas</small></span></div>
+  <div class="device" draggable="true" data-kind="cable" data-label="Backbone"><span class="emoji">📏</span><span><b>Kabel Utama</b><small>Khusus Bus</small></span></div>
   <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
-  <button class="secondary" id="resetBtn" style="width:100%">↻ Ulangi rancangan</button>
+  <button class="secondary" id="resetBtn" style="width:100%">↻ Kosongkan kanvas</button>
  </aside>
  <div>
-  <div class="canvaswrap"><svg id="board" viewBox="0 0 720 440" role="img" aria-label="Papan perancangan topologi jaringan"></svg></div>
-  <div class="feedback" id="feedback" aria-live="polite">Pilih satu perangkat, lalu pilih perangkat lain untuk menghubungkannya.</div>
-  <div class="actions"><button id="checkBtn">✓ Periksa topologi</button><button class="secondary" id="hintBtn">Petunjuk</button><button id="nextBtn" class="success hidden">Lanjut ke topologi berikutnya →</button></div>
+  <div class="canvaswrap">
+   <svg id="board" viewBox="0 0 720 440" role="img" aria-label="Kanvas perancangan topologi jaringan"></svg>
+  </div>
+  <div class="feedback" id="feedback" aria-live="polite">Tarik (drag) perangkat dari panel kiri ke dalam kanvas.</div>
+  <div class="actions">
+   <button id="checkBtn">✓ Periksa topologi</button>
+   <button class="secondary" id="hintBtn">Petunjuk</button>
+   <button id="nextBtn" class="success hidden">Lanjut ke topologi berikutnya →</button>
+  </div>
  </div>
 </div>
 </section>
@@ -93,65 +127,132 @@ footer{text-align:center;padding:10px 20px 28px;color:var(--muted);font-size:.9r
 <section class="panel instructions">
 <h3>📘 Cara bermain</h3>
 <ol>
- <li>Baca nama dan target topologi pada setiap tantangan.</li>
- <li>Klik satu perangkat di papan, lalu klik perangkat lain untuk membuat garis kabel.</li>
- <li>Untuk menghapus kabel, klik garis kabel yang sudah dibuat.</li>
- <li>Klik <b>Periksa topologi</b>. Jika benar, tombol lanjut akan muncul. Jika belum benar, perbaiki rancangan dan periksa lagi.</li>
- <li>Setiap topologi yang berhasil diselesaikan memberi 100 poin. Percobaan salah tidak mengurangi skor.</li>
+ <li>Baca instruksi target topologi pada setiap tantangan.</li>
+ <li><b>Drag and Drop</b> perangkat yang diperlukan dari panel kiri ke area kanvas kosong di sebelah kanan.</li>
+ <li>Pada Topologi Bus: <b>1 titik pada Kabel Utama hanya boleh digunakan oleh 1 PC</b>. Pilih titik kosong, lalu klik PC yang ingin dihubungkan.</li>
+ <li>Untuk menghapus kabel, cukup klik pada garis kabel tersebut. Titik backbone yang terlepas akan kosong kembali.</li>
+ <li>Klik <b>Periksa topologi</b> untuk memvalidasi rancangan Anda.</li>
 </ol>
-<p class="muted">Topologi yang dilatih: Bus, Star, Ring, Mesh, Tree, dan Hybrid.</p>
 </section>
 </main>
 <footer>Media pembelajaran Informatika • Lab Topologi Jaringan</footer>
 <script>
-// ===== PENGATURAN GOOGLE SHEETS =====
 const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4FkBgsEse30axcHqwHkRZ0sUc9XMh1ZsT4Wv_6sV2cVI-9_KxP8LWBMJMzmji80Y_/exec";
 
 const stages = [
  {
    name: "Bus",
-   desc: "Rancang topologi BUS: hubungkan semua komputer (PC 1 sampai PC 5) ke masing-masing titik pada kabel utama (backbone) di tengah.",
-   nodes: [
-     ["cable", "Backbone 1", 110, 220], 
-     ["cable", "Backbone 2", 235, 220], 
-     ["cable", "Backbone 3", 360, 220], 
-     ["cable", "Backbone 4", 485, 220], 
-     ["cable", "Backbone 5", 610, 220], 
-     ["pc", "PC 1", 110, 95],           
-     ["pc", "PC 2", 235, 345],          
-     ["pc", "PC 3", 360, 95],           
-     ["pc", "PC 4", 485, 345],          
-     ["pc", "PC 5", 610, 95]            
-   ],
-   backboneEdges: [[0, 1], [1, 2], [2, 3], [3, 4]],
-   edges: [[5, 0], [6, 1], [7, 2], [8, 3], [9, 4]],
-   hint: "Hubungkan masing-masing PC ke titik kabel utama (backbone) terdekat yang ada di tengah."
+   desc: "Rancang topologi BUS: Letakkan 1 Kabel Utama (Backbone) di tengah dan 4 Komputer di kanvas. Hubungkan setiap komputer ke titik Kabel Utama yang berbeda (1 titik = 1 PC).",
+   required: { pc: 4, cable: 1 },
+   validate: (nodes, edges) => {
+     const pcs = nodes.filter(n => n.kind === 'pc');
+     const cables = nodes.filter(n => n.kind === 'cable');
+     if (pcs.length !== 4 || cables.length !== 1) return { pass: false, msg: "Butuh tepat 4 Komputer dan 1 Kabel Utama (Backbone)." };
+     
+     // Cek berapa PC yang terhubung ke titik-titik backbone
+     const connectedPCs = new Set();
+     edges.forEach(e => {
+       if (e.a.startsWith("tap-")) connectedPCs.add(e.b);
+       if (e.b.startsWith("tap-")) connectedPCs.add(e.a);
+     });
+     
+     if (connectedPCs.size === 4) return { pass: true };
+     return { pass: false, msg: "Keempat komputer harus masing-masing terhubung ke titik Kabel Utama yang berbeda." };
+   },
+   hint: "Letakkan 1 Kabel Utama di tengah dan 4 Komputer. Klik titik biru kosong pada Kabel Utama, lalu klik Komputer untuk menghubungkannya."
  },
- {name:"Star",desc:"Rancang topologi STAR: semua komputer terhubung ke satu perangkat pusat, yaitu switch. Komputer tidak dihubungkan langsung satu sama lain.",nodes:[["switch","Switch",360,220],["pc","PC 1",170,105],["pc","PC 2",550,105],["pc","PC 3",170,335],["pc","PC 4",550,335]],edges:[[0,1],[0,2],[0,3],[0,4]],hint:"Jadikan switch sebagai pusat. Hubungkan keempat komputer langsung ke switch."},
- {name:"Ring",desc:"Rancang topologi RING: setiap komputer terhubung dengan dua komputer tetangganya sehingga membentuk lingkaran tertutup.",nodes:[["pc","PC 1",360,75],["pc","PC 2",555,170],["pc","PC 3",500,330],["pc","PC 4",220,330],["pc","PC 5",165,170]],edges:[[0,1],[1,2],[2,3],[3,4],[4,0]],hint:"Buat sambungan melingkar: PC 1–PC 2–PC 3–PC 4–PC 5, lalu hubungkan kembali PC 5 ke PC 1."},
- {name:"Mesh",desc:"Rancang topologi FULL MESH: setiap komputer terhubung langsung dengan semua komputer lainnya. Tidak ada komputer yang hanya punya satu sambungan.",nodes:[["pc","PC 1",180,110],["pc","PC 2",540,110],["pc","PC 3",180,330],["pc","PC 4",540,330]],edges:[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]],hint:"Empat komputer harus saling terhubung berpasangan. Total ada 6 kabel: 1–2, 1–3, 1–4, 2–3, 2–4, dan 3–4."},
- {name:"Tree",desc:"Rancang topologi TREE: switch inti terhubung ke dua switch cabang, kemudian setiap switch cabang menghubungkan dua komputer.",nodes:[["switch","Switch Inti",360,90],["switch","Switch A",220,220],["switch","Switch B",500,220],["pc","PC 1",130,350],["pc","PC 2",280,350],["pc","PC 3",440,350],["pc","PC 4",590,350]],edges:[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]],hint:"Buat struktur bertingkat: Switch Inti → Switch A dan Switch B. Switch A → PC 1 & PC 2. Switch B → PC 3 & PC 4."},
- {name:"Hybrid",desc:"Rancang topologi HYBRID gabungan star dan tree: router terhubung ke switch inti; switch inti terhubung ke dua switch cabang; tiap switch cabang melayani dua komputer.",nodes:[["router","Router",360,55],["switch","Switch Inti",360,160],["switch","Switch A",210,265],["switch","Switch B",510,265],["pc","PC 1",125,375],["pc","PC 2",265,375],["pc","PC 3",455,375],["pc","PC 4",595,375]],edges:[[0,1],[1,2],[1,3],[2,4],[2,5],[3,6],[3,7]],hint:"Mulai dari Router → Switch Inti → Switch A dan Switch B, lalu hubungkan dua komputer ke setiap switch cabang."}
+ {
+   name: "Star",
+   desc: "Rancang topologi STAR: Letakkan 1 Switch di tengah dan 5 Komputer di sekitarnya. Hubungkan setiap komputer langsung ke Switch pusat.",
+   required: { switch: 1, pc: 5 },
+   validate: (nodes, edges) => {
+     const sw = nodes.find(n => n.kind === 'switch');
+     const pcs = nodes.filter(n => n.kind === 'pc');
+     if (!sw || pcs.length !== 5) return { pass: false, msg: "Butuh tepat 1 Switch dan 5 Komputer." };
+     const connectedPCs = new Set();
+     edges.forEach(e => {
+       if (e.a === sw.id) connectedPCs.add(e.b);
+       if (e.b === sw.id) connectedPCs.add(e.a);
+     });
+     if (connectedPCs.size === 5) return { pass: true };
+     return { pass: false, msg: "Kelima komputer harus terhubung langsung ke Switch pusat." };
+   },
+   hint: "Tempatkan Switch di tengah dan 5 Komputer di sekitarnya, lalu hubungkan semua komputer ke Switch."
+ },
+ {
+   name: "Ring",
+   desc: "Rancang topologi RING: Letakkan 5 Komputer membentuk lingkaran tertutup dan hubungkan secara berurutan.",
+   required: { pc: 5 },
+   validate: (nodes, edges) => {
+     const pcs = nodes.filter(n => n.kind === 'pc');
+     if (pcs.length !== 5) return { pass: false, msg: "Butuh tepat 5 Komputer." };
+     const pcIds = new Set(pcs.map(p => p.id));
+     const degrees = {};
+     pcs.forEach(p => degrees[p.id] = 0);
+     edges.forEach(e => {
+       if (pcIds.has(e.a) && pcIds.has(e.b)) {
+         degrees[e.a]++;
+         degrees[e.b]++;
+       }
+     });
+     const allDegreeTwo = Object.values(degrees).every(d => d === 2);
+     if (edges.length === 5 && allDegreeTwo) return { pass: true };
+     return { pass: false, msg: "Setiap komputer harus terhubung ke tepat 2 komputer tetangga membentuk cincin tertutup (total 5 kabel)." };
+   },
+   hint: "Susun 5 komputer melingkar, lalu hubungkan membentuk rantai melingkar tertutup."
+ },
+ {
+   name: "Mesh",
+   desc: "Rancang topologi FULL MESH: Letakkan 5 Komputer dan hubungkan setiap komputer langsung ke semua komputer lainnya.",
+   required: { pc: 5 },
+   validate: (nodes, edges) => {
+     const pcs = nodes.filter(n => n.kind === 'pc');
+     if (pcs.length !== 5) return { pass: false, msg: "Butuh tepat 5 Komputer." };
+     if (edges.length === 10) return { pass: true };
+     return { pass: false, msg: "Topologi Full Mesh 5 komputer memerlukan total 10 kabel agar setiap komputer saling terhubung langsung." };
+   },
+   hint: "Hubungkan setiap komputer ke 4 komputer lainnya secara bersilang penuh."
+ },
+ {
+   name: "Tree",
+   desc: "Rancang topologi TREE: Letakkan 1 Switch Inti, 2 Switch Cabang, dan 6 Komputer (masing-masing cabang melayani 3 Komputer).",
+   required: { switch: 3, pc: 6 },
+   validate: (nodes, edges) => {
+     const sws = nodes.filter(n => n.kind === 'switch');
+     const pcs = nodes.filter(n => n.kind === 'pc');
+     if (sws.length !== 3 || pcs.length !== 6) return { pass: false, msg: "Butuh tepat 3 Switch dan 6 Komputer." };
+     return { pass: true };
+   },
+   hint: "Hubungkan Switch Inti ke 2 Switch Cabang, lalu masing-masing Switch Cabang dihubungkan ke 3 Komputer."
+ },
+ {
+   name: "Hybrid (Ring & Star)",
+   desc: "Rancang topologi HYBRID (kombinasi Ring dan Star): Hubungkan jaringan berbasis ring (3 Komputer) dan jaringan berbasis star (Switch + 3 Komputer).",
+   required: { switch: 1, pc: 6 },
+   validate: (nodes, edges) => {
+     const sws = nodes.filter(n => n.kind === 'switch');
+     const pcs = nodes.filter(n => n.kind === 'pc');
+     if (sws.length !== 1 || pcs.length !== 6) return { pass: false, msg: "Butuh tepat 1 Switch dan 6 Komputer untuk kombinasi ini." };
+     return { pass: true };
+   },
+   hint: "Buat 3 komputer membentuk ring (cincin), lalu hubungkan salah satu komputer ring ke Switch yang melayani 3 komputer lainnya (star)."
+ }
 ];
 
-let student="",studentClass="",stageIndex=0,connections=new Set(),selected=null,score=0,attempts=0,completed=0,stageAttempts=0,stagePassed=false;
+let student="", studentClass="", stageIndex=0, score=0, attempts=0, completed=0, stagePassed=false;
+let canvasNodes = [], canvasEdges = [], selectedNodeId = null, activeDragKind = null;
+let cachedLeaderboardData = [];
+
 const $=id=>document.getElementById(id);
-const key=(a,b)=>a<b?`${a}-${b}`:`${b}-${a}`;
 
 function startGame(){
-  const nameInput = $("studentName");
-  const classInput = $("studentClass");
-  student = nameInput ? nameInput.value.trim() : "";
-  studentClass = classInput ? classInput.value.trim() : "";
-  
+  student = $("studentName").value.trim();
+  studentClass = $("studentClass").value;
   if(!student || !studentClass){
     alert("Nama siswa dan Kelas harus diisi terlebih dahulu!");
-    if(!student && nameInput) nameInput.focus();
-    else if(!studentClass && classInput) classInput.focus();
     return;
   }
-  
-  stageIndex=0;score=0;attempts=0;completed=0;stageAttempts=0;
+  stageIndex=0; score=0; attempts=0; completed=0; stagePassed=false;
   $("startPanel").classList.add("hidden");
   $("resultPanel").classList.add("hidden");
   $("gamePanel").classList.remove("hidden");
@@ -159,215 +260,380 @@ function startGame(){
 }
 
 function loadStage(){
-  connections=new Set();selected=null;stageAttempts=0;stagePassed=false;
-  const s=stages[stageIndex];
-  $("stagePill").textContent=`Tantangan ${stageIndex+1} dari ${stages.length}`;
-  $("stageTitle").textContent=`Topologi ${s.name}`;
-  $("stageDescription").textContent=s.desc;
-  $("scorePill").textContent=`Skor: ${score}`;
-  $("progressBar").style.width=`${completed/stages.length*100}%`;
-  $("feedback").className="feedback";
-  $("feedback").textContent="Pilih satu perangkat, lalu pilih perangkat lain untuk menghubungkannya.";
+  canvasNodes = []; canvasEdges = []; selectedNodeId = null; stagePassed = false;
+  const s = stages[stageIndex];
+  $("stagePill").textContent = `Tantangan ${stageIndex+1} dari ${stages.length}`;
+  $("stageTitle").textContent = `Topologi ${s.name}`;
+  $("stageDescription").textContent = s.desc;
+  $("scorePill").textContent = `Skor: ${score}`;
+  $("progressBar").style.width = `${(completed/stages.length)*100}%`;
+  $("feedback").className = "feedback";
+  $("feedback").textContent = "Tarik perangkat dari panel kiri ke kanvas.";
   $("nextBtn").classList.add("hidden");
-  $("checkBtn").disabled=false;
+  $("checkBtn").disabled = false;
+  renderBoard();
+}
+
+document.querySelectorAll(".palette .device").forEach(el => {
+  el.addEventListener("dragstart", e => {
+    activeDragKind = el.getAttribute("data-kind");
+  });
+});
+
+const board = $("board");
+if(board){
+  board.addEventListener("dragover", e => e.preventDefault());
+  board.addEventListener("drop", e => {
+    e.preventDefault();
+    if(!activeDragKind || stagePassed) return;
+    const rect = board.getBoundingClientRect();
+    const x = Math.max(40, Math.min(680, e.clientX - rect.left));
+    const y = Math.max(40, Math.min(400, e.clientY - rect.top));
+    
+    let label = activeDragKind.toUpperCase();
+    if(activeDragKind === 'pc') label = `PC ${canvasNodes.filter(n=>n.kind==='pc').length+1}`;
+    if(activeDragKind === 'switch') label = `Switch ${canvasNodes.filter(n=>n.kind==='switch').length+1}`;
+    if(activeDragKind === 'router') label = `Router`;
+    if(activeDragKind === 'cable') label = `Kabel Utama`;
+
+    canvasNodes.push({ id: Date.now().toString(), kind: activeDragKind, label, x, y });
+    activeDragKind = null;
+    renderBoard();
+  });
+}
+
+function handleNodeClick(id, labelName){
+  if(stagePassed) return;
+
+  // CEK ATURAN BACKBONE: 1 Titik Tap HANYA BOLEH DIPAKAI 1 PC
+  if(id.startsWith("tap-")){
+    // Jika tap ini sudah dipakai dan kita mencoba memilihnya sebagai titik awal baru
+    const existingEdge = canvasEdges.find(e => e.a === id || e.b === id);
+    if(existingEdge && selectedNodeId !== id){
+      // Cari nama PC yang sedang terhubung ke tap ini
+      const otherId = existingEdge.a === id ? existingEdge.b : existingEdge.a;
+      const targetPc = canvasNodes.find(n => n.id === otherId);
+      const pcName = targetPc ? targetPc.label : "PC lain";
+      
+      $("feedback").className = "feedback bad";
+      $("feedback").textContent = `Titik Kabel Utama ini sudah terhubung ke ${pcName}. Pilih titik lain yang masih kosong!`;
+      return;
+    }
+  }
+
+  // Jika mencoba menghubungkan dari PC/Node lain KE Tap yang sudah terpakai
+  if(selectedNodeId && id.startsWith("tap-")){
+    const existingEdge = canvasEdges.find(e => e.a === id || e.b === id);
+    if(existingEdge){
+      const otherId = existingEdge.a === id ? existingEdge.b : existingEdge.a;
+      const targetPc = canvasNodes.find(n => n.id === otherId);
+      const pcName = targetPc ? targetPc.label : "PC lain";
+
+      $("feedback").className = "feedback bad";
+      $("feedback").textContent = `Gagal terhubung! Titik ini sudah digunakan oleh ${pcName}. Pilih titik lain yang kosong.`;
+      selectedNodeId = null;
+      renderBoard();
+      return;
+    }
+  }
+
+  // Logika Pemilihan dan Pembuatan Kabel Normal
+  if(selectedNodeId === null){
+    selectedNodeId = id;
+    $("feedback").className = "feedback";
+    $("feedback").textContent = `${labelName} dipilih. Klik perangkat tujuan untuk membuat sambungan.`;
+  } else if(selectedNodeId === id){
+    selectedNodeId = null;
+    $("feedback").className = "feedback";
+    $("feedback").textContent = "Pilihan dibatalkan.";
+  } else {
+    // Mencegah hubungan dari Tap ke Tap lain
+    if(selectedNodeId.startsWith("tap-") && id.startsWith("tap-")){
+      $("feedback").className = "feedback bad";
+      $("feedback").textContent = "Titik Kabel Utama tidak bisa dihubungkan ke titik Kabel Utama lainnya. Hubungkan ke PC!";
+      selectedNodeId = null;
+      renderBoard();
+      return;
+    }
+
+    const exists = canvasEdges.some(e => (e.a === selectedNodeId && e.b === id) || (e.a === id && e.b === selectedNodeId));
+    if(!exists){
+      canvasEdges.push({ a: selectedNodeId, b: id });
+      $("feedback").className = "feedback good";
+      $("feedback").textContent = `Kabel berhasil terhubung ke ${labelName}.`;
+    }
+    selectedNodeId = null;
+  }
   renderBoard();
 }
 
 function renderBoard(){
-  const svg=$("board"),s=stages[stageIndex];
-  if(!svg) return;
-  svg.innerHTML="";
-  const ns="http://www.w3.org/2000/svg";
-  const make=(tag,attrs={})=>{const e=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));return e;};
-  
-  for(let x=20;x<720;x+=30)for(let y=20;y<440;y+=30)svg.appendChild(make("circle",{cx:x,cy:y,r:".7",fill:"#e5edf5"}));
+  if(!board) return;
+  board.innerHTML = "";
+  const ns = "http://www.w3.org/2000/svg";
+  const make = (tag, attrs={}) => {
+    const e = document.createElementNS(ns, tag);
+    Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+    return e;
+  };
 
-  if(s.backboneEdges){
-    s.backboneEdges.forEach(([a, b]) => {
-      const na = s.nodes[a], nb = s.nodes[b];
-      svg.appendChild(make("line",{x1:na[2],y1:na[3],x2:nb[2],y2:nb[3],class:"edge",style:"stroke:#12345a;stroke-width:5;"}));
-    });
-  }
-
-  connections.forEach(k=>{
-    const [a,b]=k.split("-").map(Number),na=s.nodes[a],nb=s.nodes[b];
-    const line=make("line",{x1:na[2],y1:na[3],x2:nb[2],y2:nb[3],class:"edge","data-edge":k});
-    line.addEventListener("click",e=>{e.stopPropagation();if(stagePassed)return;connections.delete(k);selected=null;renderBoard();});
-    svg.appendChild(line);
-  });
-
-  s.nodes.forEach((n,i)=>{
-    const [kind,label,x,y]=n;
-    if(kind === "cable") {
-      const c = make("circle",{cx:x,cy:y,r:"7",fill:"#12345a",class:"node"});
-      c.addEventListener("click",()=>clickNode(i));
-      svg.appendChild(c);
-      return;
+  // Render Grid
+  for(let x=20; x<720; x+=30) {
+    for(let y=20; y<440; y+=30) {
+      board.appendChild(make("circle",{cx:x, cy:y, r:".7", fill:"#cbd5e1"}));
     }
-    const g=make("g",{class:"node"+(selected===i?" selected":""),transform:`translate(${x},${y})`});
-    const r=make("rect",{x:-48,y:-29,width:96,height:58,rx:12});
-    g.appendChild(r);
-    let emoji=kind==="pc"?"💻":kind==="switch"?"🔀":kind==="router"?"📡":kind==="modem"?"🌐":"🔌";
-    const t=make("text",{x:0,y:-3});t.textContent=emoji; t.setAttribute("font-size","19");g.appendChild(t);
-    const name=make("text",{x:0,y:17});name.textContent=label;g.appendChild(name);
-    g.addEventListener("click",()=>clickNode(i));
-    svg.appendChild(g);
+  }
+
+  // Render Backbone (Kabel Utama) & Titik Tap
+  canvasNodes.filter(n => n.kind === 'cable').forEach(cb => {
+    const x1 = 80, x2 = 640;
+    
+    // Garis Fisik Backbone
+    const bLine = make("line", {x1: x1, y1: cb.y, x2: x2, y2: cb.y, class: "backbone-line"});
+    board.appendChild(bLine);
+
+    // Disediakan 5 Titik Tap Khusus
+    const tapXCoords = [140, 260, 360, 480, 580];
+    tapXCoords.forEach((tx, idx) => {
+      const tapId = `tap-${cb.id}-${idx}`;
+      
+      // Cek apakah titik tap ini sedang terhubung ke PC
+      const isOccupied = canvasEdges.some(e => e.a === tapId || e.b === tapId);
+      const isSelected = selectedNodeId === tapId;
+
+      let tapClass = "backbone-tap";
+      if(isOccupied) tapClass += " occupied";
+      if(isSelected) tapClass += " selected";
+
+      const tap = make("circle", {
+        cx: tx, 
+        cy: cb.y, 
+        r: isSelected ? "9" : "7", 
+        class: tapClass,
+        "data-tap-id": tapId
+      });
+
+      tap.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleNodeClick(tapId, `Titik ${idx+1} Kabel Utama`);
+      });
+
+      board.appendChild(tap);
+    });
+
+    // Label Kabel Utama
+    const lbl = make("text", {x: 360, y: cb.y - 14, "font-size": "12", "font-weight": "700", "text-anchor": "middle", fill: "#12345a"});
+    lbl.textContent = "📏 Kabel Utama (Backbone)";
+    board.appendChild(lbl);
   });
-}
 
-function clickNode(i){
-  if(stagePassed)return;
-  const s = stages[stageIndex];
-  if(selected===null){
-    selected=i;renderBoard();
-    $("feedback").className="feedback";
-    $("feedback").textContent=`${s.nodes[i][1]} dipilih. Sekarang klik perangkat tujuan atau kabel utama.`;
-    return;
-  }
-  if(selected===i){selected=null;renderBoard();return;}
-  const k=key(selected,i);
-  if(connections.has(k)){
-    connections.delete(k);
-    $("feedback").textContent="Kabel tersebut sudah ada dan dihapus.";
-  }else{
-    connections.add(k);
-    $("feedback").textContent=`Kabel dibuat: ${s.nodes[selected][1]} ↔ ${s.nodes[i][1]}.`;
-  }
-  selected=null;renderBoard();
-}
+  // Render Edges (Garis Kabel)
+  canvasEdges.forEach((edge, idx) => {
+    // Dapatkan koordinat A
+    let xa, ya;
+    if(edge.a.startsWith("tap-")){
+      const parts = edge.a.split("-");
+      const cbId = parts[1];
+      const tapIdx = parseInt(parts[2]);
+      const cbNode = canvasNodes.find(n => n.id === cbId);
+      const tapXCoords = [140, 260, 360, 480, 580];
+      xa = tapXCoords[tapIdx];
+      ya = cbNode ? cbNode.y : 220;
+    } else {
+      const na = canvasNodes.find(n => n.id === edge.a);
+      if(na){ xa = na.x; ya = na.y; }
+    }
 
-function sameEdges(target){
-  const want=new Set(target.map(e=>key(e[0],e[1])));
-  if(want.size!==connections.size)return false;
-  for(const k of want)if(!connections.has(k))return false;
-  return true;
+    // Dapatkan koordinat B
+    let xb, yb;
+    if(edge.b.startsWith("tap-")){
+      const parts = edge.b.split("-");
+      const cbId = parts[1];
+      const tapIdx = parseInt(parts[2]);
+      const cbNode = canvasNodes.find(n => n.id === cbId);
+      const tapXCoords = [140, 260, 360, 480, 580];
+      xb = tapXCoords[tapIdx];
+      yb = cbNode ? cbNode.y : 220;
+    } else {
+      const nb = canvasNodes.find(n => n.id === edge.b);
+      if(nb){ xb = nb.x; yb = nb.y; }
+    }
+
+    if(xa !== undefined && xb !== undefined){
+      const line = make("line",{x1:xa, y1:ya, x2:xb, y2:yb, class:"edge"});
+      line.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if(stagePassed) return;
+        canvasEdges.splice(idx, 1); // Hapus kabel
+        $("feedback").className = "feedback";
+        $("feedback").textContent = "Kabel dihapus. Titik Kabel Utama kembali kosong.";
+        renderBoard();
+      });
+      board.appendChild(line);
+    }
+  });
+
+  // Render Nodes (PC, Switch, Router)
+  canvasNodes.forEach(n => {
+    if(n.kind === 'cable') return;
+
+    const g = make("g",{class:"node" + (selectedNodeId === n.id ? " selected":""), transform:`translate(${n.x},${n.y})`});
+    const rect = make("rect",{x:-45, y:-26, width:90, height:52, rx:10});
+    g.appendChild(rect);
+
+    let emoji = n.kind==='pc'?'💻':n.kind==='switch'?'🔀':'📡';
+    const t = make("text",{x:0, y:-4, "font-size":"18", "text-anchor":"middle"});
+    t.textContent = emoji;
+    g.appendChild(t);
+
+    const lbl = make("text",{x:0, y:15, "font-size":"11", "font-weight":"600", "text-anchor":"middle", fill:"var(--navy)"});
+    lbl.textContent = n.label;
+    g.appendChild(lbl);
+
+    g.addEventListener("click", e => {
+      e.stopPropagation();
+      handleNodeClick(n.id, n.label);
+    });
+
+    board.appendChild(g);
+  });
 }
 
 function checkStage(){
-  if(stagePassed)return;
-  attempts++;stageAttempts++;
-  if(sameEdges(stages[stageIndex].edges)){
-    stagePassed=true;completed++;score+=100;
-    $("scorePill").textContent=`Skor: ${score}`;
-    $("progressBar").style.width=`${completed/stages.length*100}%`;
-    $("feedback").className="feedback good";
-    $("feedback").textContent=`Benar! Topologi ${stages[stageIndex].name} berhasil dirancang. +100 poin.`;
+  if(stagePassed) return;
+  attempts++;
+  const s = stages[stageIndex];
+  const res = s.validate(canvasNodes, canvasEdges);
+  if(res.pass){
+    stagePassed = true;
+    completed++;
+    score += 100;
+    $("scorePill").textContent = `Skor: ${score}`;
+    $("progressBar").style.width = `${(completed/stages.length)*100}%`;
+    $("feedback").className = "feedback good";
+    $("feedback").textContent = `Benar! Topologi ${s.name} berhasil dirancang. +100 poin.`;
     $("nextBtn").classList.remove("hidden");
-    $("checkBtn").disabled=true;
-  }else{
-    $("feedback").className="feedback bad";
-    $("feedback").textContent="Belum tepat. Periksa kembali pola koneksi dan jumlah kabel.";
+    $("checkBtn").disabled = true;
+  } else {
+    $("feedback").className = "feedback bad";
+    $("feedback").textContent = res.msg || "Belum tepat. Periksa kembali perangkat dan sambungan kabel Anda.";
   }
 }
 
-function nextStage(){if(stageIndex<stages.length-1){stageIndex++;loadStage();}else{showResults();}}
+function nextStage(){
+  if(stageIndex < stages.length - 1){
+    stageIndex++;
+    loadStage();
+  } else {
+    showResults();
+  }
+}
 
 function showResults(){
   $("gamePanel").classList.add("hidden");
   $("resultPanel").classList.remove("hidden");
-  $("resultGreeting").textContent=`Hebat, ${student} dari kelas ${studentClass}! Kamu telah menyelesaikan semua tantangan.`;
-  $("finalScore").textContent=score;
-  $("finalCorrect").textContent=`${completed}/6`;
-  $("finalAttempts").textContent=attempts;
-  $("progressBar").style.width="100%";
+  $("resultGreeting").textContent = `Hebat, ${student} dari kelas ${studentClass}! Kamu telah menyelesaikan semua tantangan.`;
+  $("finalScore").textContent = score;
+  $("finalCorrect").textContent = `${completed}/6`;
+  $("finalAttempts").textContent = attempts;
+  $("progressBar").style.width = "100%";
   sendScore();
 }
 
 function sendScore(){
-  const status=$("sheetStatus");
+  const status = $("sheetStatus");
   if(!SHEETS_WEB_APP_URL){
-    status.className="feedback";
-    status.textContent="URL Web App Google Sheets belum diisi.";
+    status.className = "feedback";
+    status.textContent = "URL Web App Google Sheets belum diatur.";
     return;
   }
-  status.className="feedback";
-  status.textContent="Mengirim skor ke Google Sheet…";
-  const payload={
-    nama:student,
-    kelas:studentClass,
-    skor:score,
-    topologi_benar:completed,
-    total_percobaan:attempts,
-    waktu_selesai:new Date().toLocaleString("id-ID")
+  status.className = "feedback";
+  status.textContent = "Mengirim skor ke Google Sheet…";
+  const payload = {
+    nama: student,
+    kelas: studentClass,
+    skor: score,
+    topologi_benar: completed,
+    total_percobaan: attempts,
+    waktu_selesai: new Date().toLocaleString("id-ID")
   };
-  fetch(SHEETS_WEB_APP_URL,{
-    method:"POST",
-    mode:"no-cors",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body:JSON.stringify(payload)
+  fetch(SHEETS_WEB_APP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
   }).then(()=>{
-    status.className="feedback good";
-    status.textContent="Skor berhasil dikirim dan terekam di Google Sheet!";
-    setTimeout(fetchLeaderboard, 1500); // Tunggu sebentar lalu muat ulang leaderboard
+    status.className = "feedback good";
+    status.textContent = "Skor berhasil dikirim dan terekam di Google Sheet!";
+    setTimeout(fetchLeaderboard, 1500);
   }).catch(()=>{
-    status.className="feedback bad";
-    status.textContent="Pengiriman gagal. Periksa koneksi internet.";
+    status.className = "feedback bad";
+    status.textContent = "Pengiriman gagal. Periksa koneksi internet.";
   });
 }
 
 function fetchLeaderboard(){
   const container = $("leaderboardContainer");
   if(!container) return;
-  
-  if(!SHEETS_WEB_APP_URL){
-    container.innerHTML = `<p class="muted">URL Web App belum diatur.</p>`;
-    return;
-  }
-  
   fetch(SHEETS_WEB_APP_URL)
     .then(res => res.json())
     .then(data => {
-      if(!data || data.length === 0){
-        container.innerHTML = `<p class="muted">Belum ada data peringkat.</p>`;
-        return;
-      }
-      let html = `<table class="leaderboard-table"><tr><th>Peringkat</th><th>Nama</th><th>Kelas</th><th>Skor</th><th>Waktu Selesai</th></tr>`;
-      data.forEach((row, index) => {
-        html += `<tr><td>#${index+1}</td><td>${row.nama}</td><td>${row.kelas}</td><td><b>${row.skor}</b></td><td>${row.waktu}</td></tr>`;
-      });
-      html += `</table>`;
-      container.innerHTML = html;
+      cachedLeaderboardData = data || [];
+      renderLeaderboardTable();
     })
     .catch(() => {
-      container.innerHTML = `<p class="muted" style="color:var(--red)">Gagal memuat leaderboard (pastikan deploy Apps Script sudah diatur aksesnya ke 'Anyone').</p>`;
+      container.innerHTML = `<p class="muted" style="color:var(--red)">Gagal memuat leaderboard.</p>`;
     });
 }
 
+function renderLeaderboardTable(){
+  const container = $("leaderboardContainer");
+  if(!container) return;
+  
+  const selectedFilter = $("filterClass").value;
+  let filteredData = cachedLeaderboardData;
+  
+  if(selectedFilter !== "ALL"){
+    filteredData = cachedLeaderboardData.filter(item => item.kelas === selectedFilter);
+  }
+  
+  if(!filteredData || filteredData.length === 0){
+    container.innerHTML = `<p class="muted">Belum ada data peringkat untuk kelas terpilih.</p>`;
+    return;
+  }
+  
+  let html = `<table class="leaderboard-table"><tr><th>Peringkat</th><th>Nama</th><th>Kelas</th><th>Skor</th><th>Waktu Selesai</th></tr>`;
+  filteredData.slice(0, 20).forEach((row, index) => {
+    html += `<tr><td>#${index+1}</td><td>${row.nama}</td><td>${row.kelas}</td><td><b>${row.skor}</b></td><td>${row.waktu}</td></tr>`;
+  });
+  html += `</table>`;
+  container.innerHTML = html;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  fetchLeaderboard(); // Muat leaderboard saat awal halaman dibuka
+  fetchLeaderboard();
+  $("startBtn").addEventListener("click", startGame);
+  $("checkBtn").addEventListener("click", checkStage);
+  $("nextBtn").addEventListener("click", nextStage);
+  $("filterClass").addEventListener("change", renderLeaderboardTable);
   
-  const startBtn = $("startBtn");
-  if(startBtn) startBtn.addEventListener("click", startGame);
-  
-  const checkBtn = $("checkBtn");
-  if(checkBtn) checkBtn.addEventListener("click", checkStage);
-  
-  const nextBtn = $("nextBtn");
-  if(nextBtn) nextBtn.addEventListener("click", nextStage);
-  
-  const resetBtn = $("resetBtn");
-  if(resetBtn) resetBtn.addEventListener("click", ()=>{
+  $("resetBtn").addEventListener("click", () => {
     if(stagePassed) return;
-    connections = new Set();
-    selected = null;
+    canvasNodes = []; canvasEdges = []; selectedNodeId = null;
     renderBoard();
     $("feedback").className = "feedback";
-    $("feedback").textContent = "Rancangan diulang.";
+    $("feedback").textContent = "Kanvas dikosongkan.";
   });
-  
-  const hintBtn = $("hintBtn");
-  if(hintBtn) hintBtn.addEventListener("click", ()=>{
+  $("hintBtn").addEventListener("click", () => {
     $("feedback").className = "feedback";
     $("feedback").textContent = stages[stageIndex].hint;
   });
-  
-  const restartBtn = $("restartBtn");
-  if(restartBtn) restartBtn.addEventListener("click", ()=>{
+  $("restartBtn").addEventListener("click", () => {
     $("resultPanel").classList.add("hidden");
     $("startPanel").classList.remove("hidden");
     if($("studentName")) $("studentName").value = student;
     if($("studentClass")) $("studentClass").value = studentClass;
-    fetchLeaderboard(); // Segarkan leaderboard saat kembali ke menu awal
+    fetchLeaderboard();
   });
 });
 </script>
