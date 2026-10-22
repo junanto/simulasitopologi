@@ -26,7 +26,7 @@ button:hover{filter:brightness(.95)}button:disabled{opacity:.45;cursor:not-allow
 .device .emoji{font-size:1.45rem}.device small{display:block;color:var(--muted);font-weight:500}
 .canvaswrap{border:2px dashed var(--line);border-radius:12px;overflow:hidden;background:#fbfdff;position:relative}
 #board{width:100%;height:440px;display:block;touch-action:none}
-.node{cursor:pointer}.node rect{fill:#fff;stroke:#7190ae;stroke-width:2}.node.selected rect{stroke:#1769aa;stroke-width:4;fill:#eaf5ff}.node text{pointer-events:none;fill:#17314f;font-size:13px;font-weight:700;text-anchor:middle}
+.node{cursor:grab}.node:active{cursor:grabbing}.node rect{fill:#fff;stroke:#7190ae;stroke-width:2}.node.selected rect{stroke:#1769aa;stroke-width:4;fill:#eaf5ff}.node text{pointer-events:none;fill:#17314f;font-size:13px;font-weight:700;text-anchor:middle}
 .edge{stroke:#1769aa;stroke-width:3;stroke-linecap:round;cursor:pointer}.edge:hover{stroke:var(--red)}
 .backbone-line{stroke:#0f2c59;stroke-width:10;stroke-linecap:round;cursor:pointer}
 .backbone-tap{fill:#1769aa;stroke:#fff;stroke-width:2;cursor:pointer;transition:all 0.2s}
@@ -45,11 +45,11 @@ footer{text-align:center;padding:10px 20px 28px;color:var(--muted);font-size:.9r
 </style>
 </head>
 <body>
-<header><h1>🧩 Lab Topologi Jaringan</h1><p>Media pembelajaran interaktif Informatika • Klik perangkat untuk menambahkan ke kanvas, hubungkan, lalu periksa topologi.</p></header>
+<header><h1>🧩 Lab Topologi Jaringan</h1><p>Media pembelajaran interaktif Informatika • Klik perangkat untuk masuk ke kanvas, geser posisinya, lalu hubungkan.</p></header>
 <main>
 <section id="startPanel" class="panel">
 <h2>Selamat datang, calon perancang jaringan!</h2>
-<p class="muted">Masukkan identitas terlebih dahulu. Selesaikan 6 tantangan topologi dengan mengeklik perangkat untuk memasukkannya ke kanvas dan menghubungkannya.</p>
+<p class="muted">Masukkan identitas terlebih dahulu. Selesaikan 6 tantangan topologi dengan mengeklik perangkat untuk memasukkannya ke kanvas, menggeser posisinya, dan menghubungkannya.</p>
 <div class="formgrid">
  <div class="field"><label for="studentName">Nama siswa</label><input id="studentName" maxlength="80" placeholder="Tulis nama lengkap" autocomplete="name"></div>
  <div class="field">
@@ -91,7 +91,7 @@ footer{text-align:center;padding:10px 20px 28px;color:var(--muted);font-size:.9r
 <div class="workspace">
  <aside class="palette">
   <h3>Perangkat</h3>
-  <p class="muted" style="font-size:.82rem"><b>Klik perangkat</b> untuk memasukkannya ke kanvas. Klik dua perangkat/titik secara berurutan untuk menghubungkannya.</p>
+  <p class="muted" style="font-size:.82rem"><b>Klik perangkat</b> untuk menambahkannya ke kanvas. Anda bisa menyeret (*drag*) perangkat di kanvas untuk memindahkannya.</p>
   <div class="device" data-kind="pc" data-label="PC"><span class="emoji">💻</span><span><b>Komputer</b><small>End device</small></span></div>
   <div class="device" data-kind="switch" data-label="Switch"><span class="emoji">🔀</span><span><b>Switch</b><small>Penghubung LAN</small></span></div>
   <div class="device" data-kind="router" data-label="Router"><span class="emoji">📡</span><span><b>Router</b><small>Jaringan luas</small></span></div>
@@ -130,8 +130,9 @@ footer{text-align:center;padding:10px 20px 28px;color:var(--muted);font-size:.9r
 <ol>
  <li>Baca instruksi target topologi pada setiap tantangan.</li>
  <li><b>Klik Perangkat</b> pada panel kiri untuk menambahkannya ke kanvas secara otomatis.</li>
- <li>Untuk menghubungkan perangkat: <b>Klik perangkat/titik awal</b>, lalu <b>klik perangkat/titik tujuan</b>.</li>
- <li>Pada Topologi Bus: <b>1 titik pada Kabel Utama hanya boleh digunakan oleh 1 PC</b>. Klik titik biru kosong pada kabel utama, lalu klik PC yang ingin dihubungkan.</li>
+ <li><b>Geser (*Drag*)</b> perangkat di dalam kanvas untuk mengatur tata letaknya sesuai keinginan.</li>
+ <li>Untuk menghubungkan perangkat: Klik perangkat/titik awal, lalu klik perangkat/titik tujuan.</li>
+ <li>Pada Topologi Bus: <b>1 titik pada Kabel Utama hanya boleh digunakan oleh 1 PC</b>.</li>
  <li>Untuk menghapus kabel, cukup klik pada garis kabel tersebut.</li>
  <li>Klik <b>Periksa topologi</b> untuk memvalidasi rancangan Anda.</li>
 </ol>
@@ -144,7 +145,7 @@ const SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx4FkBgsEse3
 const stages = [
  {
    name: "Bus",
-   desc: "Rancang topologi BUS: Tambahkan 1 Kabel Utama (Backbone) dan 4 Komputer. Hubungkan setiap komputer ke titik Kabel Utama yang berbeda (1 titik = 1 PC).",
+   desc: "Rancang topologi BUS: Tambahkan 1 Kabel Utama (Backbone) dan 4 Komputer. Atur posisi dan hubungkan setiap komputer ke titik Kabel Utama yang berbeda (1 titik = 1 PC).",
    required: { pc: 4, cable: 1 },
    validate: (nodes, edges) => {
      const pcs = nodes.filter(n => n.kind === 'pc');
@@ -160,7 +161,7 @@ const stages = [
      if (connectedPCs.size === 4) return { pass: true };
      return { pass: false, msg: "Keempat komputer harus masing-masing terhubung ke titik Kabel Utama yang berbeda." };
    },
-   hint: "Tambahkan 1 Kabel Utama dan 4 Komputer. Klik titik biru kosong pada Kabel Utama, lalu klik Komputer untuk menghubungkannya."
+   hint: "Tambahkan 1 Kabel Utama dan 4 Komputer. Geser posisinya, lalu hubungkan ke titik Kabel Utama."
  },
  {
    name: "Star",
@@ -178,7 +179,7 @@ const stages = [
      if (connectedPCs.size === 5) return { pass: true };
      return { pass: false, msg: "Kelima komputer harus terhubung langsung ke Switch pusat." };
    },
-   hint: "Tambahkan 1 Switch dan 5 Komputer, lalu hubungkan semua komputer ke Switch."
+   hint: "Tempatkan Switch di tengah dan 5 Komputer di sekitarnya, lalu hubungkan semua komputer ke Switch."
  },
  {
    name: "Ring",
@@ -200,7 +201,7 @@ const stages = [
      if (edges.length === 5 && allDegreeTwo) return { pass: true };
      return { pass: false, msg: "Setiap komputer harus terhubung ke tepat 2 komputer tetangga membentuk cincin tertutup (total 5 kabel)." };
    },
-   hint: "Tambahkan 5 komputer, lalu hubungkan secara melingkar berurutan hingga membentuk cincin tertutup."
+   hint: "Susun 5 komputer melingkar, lalu hubungkan secara berurutan."
  },
  {
    name: "Mesh",
@@ -242,6 +243,7 @@ const stages = [
 
 let student="", studentClass="", stageIndex=0, score=0, attempts=0, completed=0, stagePassed=false;
 let canvasNodes = [], canvasEdges = [], selectedNodeId = null;
+let draggingNodeId = null, dragOffsetX = 0, dragOffsetY = 0, hasMoved = false;
 let cachedLeaderboardData = [];
 
 const $=id=>document.getElementById(id);
@@ -275,7 +277,7 @@ function loadStage(){
   renderBoard();
 }
 
-// FUNGSI BARU: Menentukan posisi otomatis perangkat saat diklik tanpa drag & drop
+// Menambahkan perangkat ke kanvas lewat klik tombol di panel kiri
 function addDeviceToCanvas(kind) {
   if (stagePassed) return;
 
@@ -285,21 +287,13 @@ function addDeviceToCanvas(kind) {
   if (kind === 'router') label = `Router`;
   if (kind === 'cable') label = `Kabel Utama`;
 
-  // Menentukan koordinat default agar posisi perangkat terdistribusi rapi
   let x = 360, y = 220;
-
-  if (kind === 'cable') {
-    x = 360;
-    y = 220;
-  } else {
-    // Susun node biasa dalam posisi grid otomatis
+  if (kind !== 'cable') {
     const count = canvasNodes.filter(n => n.kind !== 'cable').length;
     const col = count % 4;
     const row = Math.floor(count / 4);
     x = 120 + col * 160;
     y = 80 + row * 120;
-    
-    // Jika ada kabel utama, atur offset agar tidak persis menumpuk garis kabel
     if (canvasNodes.some(n => n.kind === 'cable') && row === 1) {
       y = 350;
     }
@@ -307,22 +301,19 @@ function addDeviceToCanvas(kind) {
 
   canvasNodes.push({ id: Date.now().toString(), kind, label, x, y });
   $("feedback").className = "feedback good";
-  $("feedback").textContent = `${label} berhasil ditambahkan ke kanvas. Klik dua perangkat/titik untuk membuat kabel.`;
+  $("feedback").textContent = `${label} ditambahkan. Geser posisinya atau klik untuk menghubungkan.`;
   renderBoard();
 }
 
-// Event listener klik pada item perangkat di panel kiri
 document.querySelectorAll(".palette .device").forEach(el => {
   el.addEventListener("click", () => {
-    const kind = el.getAttribute("data-kind");
-    addDeviceToCanvas(kind);
+    addDeviceToCanvas(el.getAttribute("data-kind"));
   });
 });
 
 function handleNodeClick(id, labelName){
   if(stagePassed) return;
 
-  // CEK ATURAN BACKBONE: 1 Titik Tap HANYA BOLEH DIPAKAI 1 PC
   if(id.startsWith("tap-")){
     const existingEdge = canvasEdges.find(e => e.a === id || e.b === id);
     if(existingEdge && selectedNodeId !== id){
@@ -351,7 +342,6 @@ function handleNodeClick(id, labelName){
     }
   }
 
-  // Logika Pemilihan dan Pembuatan Kabel
   if(selectedNodeId === null){
     selectedNodeId = id;
     $("feedback").className = "feedback";
@@ -403,12 +393,23 @@ function renderBoard(){
     const x1 = 80, x2 = 640;
     
     const bLine = make("line", {x1: x1, y1: cb.y, x2: x2, y2: cb.y, class: "backbone-line"});
+    
+    // Fitur Drag khusus Kabel Utama
+    bLine.addEventListener("mousedown", (e) => {
+      if(stagePassed) return;
+      draggingNodeId = cb.id;
+      hasMoved = false;
+      const pt = board.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const svgP = pt.matrixTransform(board.getScreenCTM().inverse());
+      dragOffsetY = svgP.y - cb.y;
+    });
+
     board.appendChild(bLine);
 
     const tapXCoords = [140, 260, 360, 480, 580];
     tapXCoords.forEach((tx, idx) => {
       const tapId = `tap-${cb.id}-${idx}`;
-      
       const isOccupied = canvasEdges.some(e => e.a === tapId || e.b === tapId);
       const isSelected = selectedNodeId === tapId;
 
@@ -417,8 +418,7 @@ function renderBoard(){
       if(isSelected) tapClass += " selected";
 
       const tap = make("circle", {
-        cx: tx, 
-        cy: cb.y, 
+        cx: tx, cy: cb.y, 
         r: isSelected ? "9" : "7", 
         class: tapClass,
         "data-tap-id": tapId
@@ -426,7 +426,7 @@ function renderBoard(){
 
       tap.addEventListener("click", (e) => {
         e.stopPropagation();
-        handleNodeClick(tapId, `Titik ${idx+1} Kabel Utama`);
+        if(!hasMoved) handleNodeClick(tapId, `Titik ${idx+1} Kabel Utama`);
       });
 
       board.appendChild(tap);
@@ -442,11 +442,9 @@ function renderBoard(){
     let xa, ya;
     if(edge.a.startsWith("tap-")){
       const parts = edge.a.split("-");
-      const cbId = parts[1];
-      const tapIdx = parseInt(parts[2]);
-      const cbNode = canvasNodes.find(n => n.id === cbId);
+      const cbNode = canvasNodes.find(n => n.id === parts[1]);
       const tapXCoords = [140, 260, 360, 480, 580];
-      xa = tapXCoords[tapIdx];
+      xa = tapXCoords[parseInt(parts[2])];
       ya = cbNode ? cbNode.y : 220;
     } else {
       const na = canvasNodes.find(n => n.id === edge.a);
@@ -456,11 +454,9 @@ function renderBoard(){
     let xb, yb;
     if(edge.b.startsWith("tap-")){
       const parts = edge.b.split("-");
-      const cbId = parts[1];
-      const tapIdx = parseInt(parts[2]);
-      const cbNode = canvasNodes.find(n => n.id === cbId);
+      const cbNode = canvasNodes.find(n => n.id === parts[1]);
       const tapXCoords = [140, 260, 360, 480, 580];
-      xb = tapXCoords[tapIdx];
+      xb = tapXCoords[parseInt(parts[2])];
       yb = cbNode ? cbNode.y : 220;
     } else {
       const nb = canvasNodes.find(n => n.id === edge.b);
@@ -481,7 +477,7 @@ function renderBoard(){
     }
   });
 
-  // Render Nodes (PC, Switch, Router)
+  // Render Nodes (PC, Switch, Router) dengan dukungan Drag & Drop di Kanvas
   canvasNodes.forEach(n => {
     if(n.kind === 'cable') return;
 
@@ -498,14 +494,54 @@ function renderBoard(){
     lbl.textContent = n.label;
     g.appendChild(lbl);
 
+    // Event mouse untuk Drag & Drop perangkat di kanvas
+    g.addEventListener("mousedown", e => {
+      e.stopPropagation();
+      if(stagePassed) return;
+      draggingNodeId = n.id;
+      hasMoved = false;
+      const pt = board.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const svgP = pt.matrixTransform(board.getScreenCTM().inverse());
+      dragOffsetX = svgP.x - n.x;
+      dragOffsetY = svgP.y - n.y;
+    });
+
     g.addEventListener("click", e => {
       e.stopPropagation();
-      handleNodeClick(n.id, n.label);
+      if(!hasMoved) handleNodeClick(n.id, n.label);
     });
 
     board.appendChild(g);
   });
 }
+
+// Global Mouse Move & Up untuk menangani pergerakan drag & drop di kanvas
+document.addEventListener("mousemove", e => {
+  if(!draggingNodeId) return;
+  const board = $("board");
+  if(!board) return;
+
+  const pt = board.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  const svgP = pt.matrixTransform(board.getScreenCTM().inverse());
+
+  const node = canvasNodes.find(n => n.id === draggingNodeId);
+  if(node){
+    hasMoved = true;
+    if(node.kind === 'cable'){
+      node.y = Math.max(60, Math.min(380, svgP.y - dragOffsetY));
+    } else {
+      node.x = Math.max(50, Math.min(670, svgP.x - dragOffsetX));
+      node.y = Math.max(40, Math.min(400, svgP.y - dragOffsetY));
+    }
+    renderBoard();
+  }
+});
+
+document.addEventListener("mouseup", () => {
+  draggingNodeId = null;
+});
 
 function checkStage(){
   if(stagePassed) return;
